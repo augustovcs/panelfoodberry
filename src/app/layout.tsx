@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Bricolage_Grotesque } from "next/font/google";
+import { Providers } from "./providers";
 import "./globals.css";
 
 // UI (corpo) — Plus Jakarta Sans. Display (títulos) — Bricolage Grotesque.
@@ -38,7 +39,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className={`${jakarta.variable} ${bricolage.variable}`}>
       <body className="min-h-dvh bg-background font-sans text-foreground antialiased">
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
