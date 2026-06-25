@@ -1,0 +1,9 @@
+# Configuração mínima do Supabase CLI. Ajuste `project_id` ao linkar o projeto
+# real com `supabase link --project-ref <ref>`. Ver supabase/README.md.
+project_id = "anotabem"
+
+[db]
+major_version = 15
+
+[storage]
+enabled = true

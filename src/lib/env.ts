@@ -31,7 +31,7 @@ const serverSchema = z.object({
 
 function parse<T extends z.ZodTypeAny>(
   schema: T,
-  source: NodeJS.ProcessEnv,
+  source: Record<string, string | undefined>,
 ): z.infer<T> {
   const result = schema.safeParse(source);
   if (!result.success) {
@@ -44,8 +44,17 @@ function parse<T extends z.ZodTypeAny>(
   return result.data;
 }
 
-/** Variáveis públicas (seguras no client e no server). */
-export const clientEnv = parse(clientSchema, process.env);
+/**
+ * Variáveis públicas (seguras no client e no server). Cada `NEXT_PUBLIC_*` é
+ * referenciada explicitamente para que o Next as inline no bundle do browser
+ * (acessar `process.env` inteiro no client não funciona).
+ */
+export const clientEnv = parse(clientSchema, {
+  NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+  NEXT_PUBLIC_ADMIN_URL: process.env.NEXT_PUBLIC_ADMIN_URL,
+  NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+});
 
 /**
  * Variáveis de servidor. Só pode ser importado em código server-side.

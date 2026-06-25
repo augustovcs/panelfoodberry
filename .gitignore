@@ -20,6 +20,7 @@ next-env.d.ts
 # Documentos internos de planejamento (não versionar)
 ARCHITECTURE.md
 steps.md
+dbseed.md
 
 # Código legado do Vite (referência local; o histórico preserva o original)
 legacy/
