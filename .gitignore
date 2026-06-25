@@ -9,6 +9,21 @@ dist-ssr
 *.local
 *.tsbuildinfo
 
+# Next.js
+.next/
+out/
+build
+next-env.d.ts
+.vercel
+/coverage
+
+# Documentos internos de planejamento (não versionar)
+ARCHITECTURE.md
+steps.md
+
+# Código legado do Vite (referência local; o histórico preserva o original)
+legacy/
+
 # Editor / OS
 .vscode/*
 !.vscode/extensions.json

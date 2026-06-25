@@ -3,7 +3,7 @@ import tailwindcssAnimate from "tailwindcss-animate";
 
 export default {
   darkMode: ["class"],
-  content: ["./index.html", "./src/**/*.{ts,tsx}"],
+  content: ["./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
@@ -55,8 +55,14 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        sans: ["Plus Jakarta Sans", "system-ui", "-apple-system", "sans-serif"],
-        display: ["Bricolage Grotesque", "Plus Jakarta Sans", "sans-serif"],
+        // Variáveis injetadas por next/font (ver src/app/layout.tsx).
+        sans: [
+          "var(--font-jakarta)",
+          "system-ui",
+          "-apple-system",
+          "sans-serif",
+        ],
+        display: ["var(--font-bricolage)", "var(--font-jakarta)", "sans-serif"],
       },
       keyframes: {
         "slide-up": {
