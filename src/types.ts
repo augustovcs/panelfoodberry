@@ -1,3 +1,5 @@
+import type { LucideIcon } from "lucide-react";
+
 export type CustomerView =
   | "menu"
   | "cart"
@@ -57,7 +59,7 @@ export interface Restaurant {
 export interface Category {
   id: string;
   name: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: LucideIcon;
   items: MenuItem[];
 }
 
