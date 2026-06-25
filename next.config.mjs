@@ -36,8 +36,9 @@ const securityHeaders = [
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Standalone build = pacote mínimo p/ rodar com `node` na Hostinger (PM2). Ver ARCHITECTURE §11.
-  output: "standalone",
+  // Standalone = pacote mínimo p/ rodar com `node` na Hostinger (PM2). Na Vercel
+  // deixamos o padrão (a Vercel cuida do output). Ver ARCHITECTURE §11.
+  output: process.env.VERCEL ? undefined : "standalone",
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
