@@ -24,6 +24,7 @@ import {
 } from "@/store/cart";
 import type { PaymentMethod } from "@/lib/types";
 import { PAYMENT_LABELS } from "@/lib/types";
+import { saveLocalOrder } from "@/lib/orders/local";
 import { toE164BR } from "@/lib/validators/common";
 import {
   formatCurrency,
@@ -176,11 +177,21 @@ export function CheckoutFlow({
         return;
       }
       const data = await res.json();
-      try {
-        localStorage.setItem("anotabem-last-order", data.code);
-      } catch {
-        /* ignore */
-      }
+      // Histórico local (Meus pedidos + tracking em modo mock).
+      saveLocalOrder({
+        code: data.code,
+        createdAt: Date.now(),
+        deliveryType,
+        items: lines.map((l) => ({
+          name: l.name,
+          qty: l.quantity,
+          lineTotal: lineDisplayTotal(l),
+        })),
+        subtotal,
+        deliveryFee: fee,
+        discount,
+        total,
+      });
       clear();
       if (data.whatsappUrl) window.open(data.whatsappUrl, "_blank");
       router.push(`/pedido/${data.code}`);

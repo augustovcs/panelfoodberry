@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowRight, X, Bike, Store } from "lucide-react";
 import type { KitchenOrder } from "@/lib/admin/data";
@@ -19,13 +20,16 @@ function nextStatus(s: OrderStatus): OrderStatus | null {
 export function KitchenBoard({
   initial,
   configured,
+  demo = false,
 }: {
   initial: KitchenOrder[];
   configured: boolean;
+  demo?: boolean;
 }) {
   const qc = useQueryClient();
+  const [localOrders, setLocalOrders] = useState<KitchenOrder[]>(initial);
 
-  const { data: orders = [] } = useQuery({
+  const { data: queryOrders = [] } = useQuery({
     queryKey: ["kitchen"],
     queryFn: async (): Promise<KitchenOrder[]> => {
       const r = await fetch("/api/admin/orders");
@@ -34,10 +38,10 @@ export function KitchenBoard({
     },
     initialData: initial,
     refetchInterval: 10_000,
-    enabled: configured,
+    enabled: !demo && configured,
   });
 
-  const mutate = useMutation({
+  const serverMutate = useMutation({
     mutationFn: async (vars: { code: string; status: OrderStatus }) => {
       await fetch(`/api/admin/orders/${vars.code}`, {
         method: "PATCH",
@@ -47,6 +51,23 @@ export function KitchenBoard({
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["kitchen"] }),
   });
+
+  const orders = demo ? localOrders : queryOrders;
+
+  function advance(vars: { code: string; status: OrderStatus }) {
+    if (demo) {
+      // ⚠️ DEMO — sem banco: move/remove apenas em memória.
+      setLocalOrders((prev) =>
+        prev.flatMap((o) => {
+          if (o.code !== vars.code) return [o];
+          if (vars.status === "done" || vars.status === "cancelled") return [];
+          return [{ ...o, status: vars.status }];
+        }),
+      );
+      return;
+    }
+    serverMutate.mutate(vars);
+  }
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -76,7 +97,7 @@ export function KitchenBoard({
               </div>
               <div className="space-y-2">
                 {list.map((o) => (
-                  <Card key={o.code} order={o} onAdvance={mutate.mutate} />
+                  <Card key={o.code} order={o} onAdvance={advance} />
                 ))}
                 {list.length === 0 && (
                   <p className="px-2 py-6 text-center text-[12px] text-muted-foreground">

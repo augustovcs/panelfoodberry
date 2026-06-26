@@ -59,3 +59,18 @@ export const STATUS_FLOW: OrderStatus[] = [
   "sent",
   "done",
 ];
+
+export const STATUS_CONFIG: Record<
+  OrderStatus,
+  { label: string; color: string; bg: string }
+> = {
+  queue: { label: "Na fila", color: "text-orange-700", bg: "bg-orange-50" },
+  production: {
+    label: "Em produção",
+    color: "text-amber-700",
+    bg: "bg-amber-50",
+  },
+  sent: { label: "Enviado", color: "text-blue-700", bg: "bg-blue-50" },
+  done: { label: "Finalizado", color: "text-emerald-700", bg: "bg-emerald-50" },
+  cancelled: { label: "Cancelado", color: "text-red-700", bg: "bg-red-50" },
+};

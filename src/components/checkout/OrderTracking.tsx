@@ -1,17 +1,23 @@
 "use client";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import {
-  CheckCircle2,
   Clock,
   ChefHat,
   Bike,
   PartyPopper,
   XCircle,
   ArrowLeft,
+  SearchX,
 } from "lucide-react";
 import type { OrderStatus } from "@/lib/types";
 import { STATUS_FLOW } from "@/lib/types";
+import {
+  getLocalOrder,
+  simulatedStatus,
+  type LocalOrder,
+} from "@/lib/orders/local";
 import { formatCurrency } from "@/lib/utils";
 
 interface TrackData {
@@ -19,7 +25,6 @@ interface TrackData {
   status: OrderStatus;
   items: { name: string; qty: number; lineTotal: number }[];
   total: number;
-  customerName: string;
 }
 
 const META: Record<OrderStatus, { label: string; icon: typeof Clock }> = {
@@ -31,7 +36,8 @@ const META: Record<OrderStatus, { label: string; icon: typeof Clock }> = {
 };
 
 export function OrderTracking({ code }: { code: string }) {
-  const { data, isLoading, isError } = useQuery<TrackData>({
+  // Banco (quando configurado).
+  const { data, isError } = useQuery<TrackData>({
     queryKey: ["order", code],
     queryFn: async () => {
       const r = await fetch(`/api/orders/${code}`);
@@ -40,6 +46,29 @@ export function OrderTracking({ code }: { code: string }) {
     },
     refetchInterval: 10_000,
   });
+
+  // Fallback local (modo mock) + tick p/ progredir o status simulado.
+  const [local, setLocal] = useState<LocalOrder | null>(null);
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    setLocal(getLocalOrder(code));
+    const t = setInterval(() => setTick((n) => n + 1), 10_000);
+    return () => clearInterval(t);
+  }, [code]);
+
+  const view: {
+    status: OrderStatus;
+    items: { name: string; qty: number; lineTotal: number }[];
+    total: number;
+  } | null = data
+    ? data
+    : isError && local
+      ? {
+          status: simulatedStatus(local.createdAt),
+          items: local.items,
+          total: local.total,
+        }
+      : null;
 
   return (
     <main className="mx-auto w-full max-w-lg px-4 py-6 lg:px-6">
@@ -57,37 +86,38 @@ export function OrderTracking({ code }: { code: string }) {
           #{code}
         </h1>
 
-        {isLoading && (
+        {!view && !isError && (
           <p className="mt-4 text-sm text-muted-foreground">Carregando…</p>
         )}
 
-        {/* Sem banco: o pedido já foi para o WhatsApp do restaurante. */}
-        {isError && (
-          <div className="mt-4 rounded-xl bg-primary/5 p-4 text-[14px]">
-            <CheckCircle2 className="mb-2 h-6 w-6 text-primary" />
-            <p className="font-semibold">Pedido enviado!</p>
-            <p className="mt-1 text-muted-foreground">
-              Seu pedido foi encaminhado ao WhatsApp do restaurante. O
-              acompanhamento ao vivo aparece aqui quando o painel confirmar.
+        {!view && isError && (
+          <div className="mt-5 text-center">
+            <div className="mx-auto mb-3 grid h-14 w-14 place-items-center rounded-2xl bg-secondary">
+              <SearchX className="h-6 w-6 text-muted-foreground/60" />
+            </div>
+            <p className="text-sm font-semibold">Pedido não encontrado</p>
+            <p className="mt-1 text-[13px] text-muted-foreground">
+              Ele pode já ter sido enviado ao WhatsApp do restaurante.
             </p>
           </div>
         )}
 
-        {data && (
-          <>
-            {data.status === "cancelled" ? (
-              <div className="mt-4 rounded-xl bg-destructive/10 p-4 text-[14px] font-semibold text-destructive">
-                Pedido cancelado. Fale com o restaurante.
-              </div>
-            ) : (
+        {view &&
+          (view.status === "cancelled" ? (
+            <div className="mt-4 rounded-xl bg-destructive/10 p-4 text-[14px] font-semibold text-destructive">
+              Pedido cancelado. Fale com o restaurante.
+            </div>
+          ) : (
+            <>
               <ol className="mt-5 space-y-1">
                 {STATUS_FLOW.map((s, i) => {
-                  const reached = STATUS_FLOW.indexOf(data.status) >= i;
+                  const reached = STATUS_FLOW.indexOf(view.status) >= i;
+                  const current = view.status === s;
                   const Icon = META[s].icon;
                   return (
                     <li key={s} className="flex items-center gap-3">
                       <span
-                        className={`grid h-9 w-9 place-items-center rounded-full ${
+                        className={`grid h-9 w-9 place-items-center rounded-full transition-colors ${
                           reached
                             ? "bg-primary text-primary-foreground"
                             : "bg-secondary text-muted-foreground"
@@ -96,41 +126,47 @@ export function OrderTracking({ code }: { code: string }) {
                         <Icon className="h-[18px] w-[18px]" />
                       </span>
                       <span
-                        className={`text-[14px] font-semibold ${
-                          reached ? "text-foreground" : "text-muted-foreground"
+                        className={`text-[14px] ${
+                          current
+                            ? "font-extrabold text-foreground"
+                            : reached
+                              ? "font-semibold text-foreground"
+                              : "font-medium text-muted-foreground"
                         }`}
                       >
                         {META[s].label}
                       </span>
+                      {current && (
+                        <span className="ml-auto h-2 w-2 animate-pulse rounded-full bg-primary" />
+                      )}
                     </li>
                   );
                 })}
               </ol>
-            )}
 
-            <div className="mt-5 border-t border-border/60 pt-4">
-              {data.items.map((it, i) => (
-                <div
-                  key={i}
-                  className="flex justify-between text-[13px] text-muted-foreground"
-                >
-                  <span>
-                    {it.qty}× {it.name}
-                  </span>
+              <div className="mt-5 border-t border-border/60 pt-4">
+                {view.items.map((it, i) => (
+                  <div
+                    key={i}
+                    className="flex justify-between text-[13px] text-muted-foreground"
+                  >
+                    <span>
+                      {it.qty}× {it.name}
+                    </span>
+                    <span className="tabular-nums">
+                      {formatCurrency(it.lineTotal)}
+                    </span>
+                  </div>
+                ))}
+                <div className="mt-2 flex justify-between text-[15px] font-extrabold">
+                  <span>Total</span>
                   <span className="tabular-nums">
-                    {formatCurrency(it.lineTotal)}
+                    {formatCurrency(view.total)}
                   </span>
                 </div>
-              ))}
-              <div className="mt-2 flex justify-between text-[15px] font-extrabold">
-                <span>Total</span>
-                <span className="tabular-nums">
-                  {formatCurrency(data.total)}
-                </span>
               </div>
-            </div>
-          </>
-        )}
+            </>
+          ))}
       </div>
     </main>
   );
