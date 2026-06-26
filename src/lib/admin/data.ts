@@ -112,7 +112,7 @@ export async function getAdminMenu(): Promise<AdminMenu> {
       db
         .from("categories")
         .select(
-          "id,name,icon,sort,active, items:items(id,name,price,old_price,badge,featured,active,sort)",
+          "id,name,icon,sort,active, items:items(id,name,description,type,price,old_price,badge,image_url,featured,active,sort)",
         )
         .order("sort"),
       db.from("business_settings").select("*").eq("id", 1).maybeSingle(),

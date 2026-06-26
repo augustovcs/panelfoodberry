@@ -127,9 +127,12 @@ export const demoAdminMenu: AdminMenu = {
     items: c.items.map((it, ii) => ({
       id: `demo-${it.id}`,
       name: it.name,
+      description: it.description,
+      type: "produto" as const,
       price: it.price,
       old_price: it.oldPrice ?? null,
       badge: it.badge ?? null,
+      image_url: it.imageUrl ?? null,
       featured: it.featured,
       active: true,
       sort: ii,
