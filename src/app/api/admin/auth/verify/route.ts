@@ -7,7 +7,7 @@ import { rateLimit, clientIp } from "@/lib/security/rate-limit";
 import { deviceHash, coarseGeo } from "@/lib/security/device";
 import { verifyOtp } from "@/lib/security/otp";
 import { setAdmin2faCookie } from "@/lib/security/session";
-import { getServerEnv } from "@/lib/env";
+import { getServerEnv } from "@/lib/env.server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

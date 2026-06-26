@@ -8,7 +8,7 @@ import { deviceHash, coarseGeo } from "@/lib/security/device";
 import { generateOtp, hashOtp } from "@/lib/security/otp";
 import { setAdmin2faCookie } from "@/lib/security/session";
 import { sendOtpEmail } from "@/lib/security/email";
-import { getServerEnv } from "@/lib/env";
+import { getServerEnv } from "@/lib/env.server";
 // ⚠️ DEMO — remover em produção
 import { isDemoMode, DEMO_USER, DEMO_PASSWORD } from "@/lib/admin/demo";
 

@@ -1,6 +1,7 @@
 import "server-only";
 import { createClient } from "@supabase/supabase-js";
-import { clientEnv, getServerEnv } from "@/lib/env";
+import { clientEnv } from "@/lib/env";
+import { getServerEnv } from "@/lib/env.server";
 
 /**
  * Cliente Supabase com a `service_role` — IGNORA RLS. Uso EXCLUSIVO no servidor,

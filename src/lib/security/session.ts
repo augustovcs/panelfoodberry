@@ -1,7 +1,7 @@
 import "server-only";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
-import { getServerEnv } from "@/lib/env";
+import { getServerEnv } from "@/lib/env.server";
 
 const COOKIE = "ab_admin_2fa";
 const TTL_MS = 8 * 60 * 60 * 1000; // 8h

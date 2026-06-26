@@ -1,6 +1,6 @@
 import "server-only";
 import { createHmac } from "node:crypto";
-import { getServerEnv } from "@/lib/env";
+import { getServerEnv } from "@/lib/env.server";
 
 function secret(): string {
   return (
