@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 
 type Step = "credentials" | "otp";
 
-export function LoginForm() {
+export function LoginForm({ demo = false }: { demo?: boolean }) {
   const router = useRouter();
   const [step, setStep] = useState<Step>("credentials");
   const [email, setEmail] = useState("");
@@ -20,6 +20,31 @@ export function LoginForm() {
   function finish() {
     router.replace("/dashboard");
     router.refresh();
+  }
+
+  // ⚠️ DEMO — remover em produção
+  async function loginDemo() {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/admin/auth/login", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          email: "demo@anotabem.app",
+          password: "demo1234",
+        }),
+      });
+      if (!res.ok) {
+        setError("Não foi possível acessar o demo.");
+        return;
+      }
+      finish();
+    } catch {
+      setError("Falha de conexão.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function submitCredentials(e: React.FormEvent) {
@@ -90,39 +115,67 @@ export function LoginForm() {
       </div>
 
       {step === "credentials" ? (
-        <form onSubmit={submitCredentials} className="space-y-3">
-          <label className="block">
-            <span className="mb-1 block text-[12px] font-semibold text-muted-foreground">
-              E-mail
-            </span>
-            <Input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoComplete="username"
-            />
-          </label>
-          <label className="block">
-            <span className="mb-1 block text-[12px] font-semibold text-muted-foreground">
-              Senha
-            </span>
-            <Input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              autoComplete="current-password"
-            />
-          </label>
-          <Button
-            type="submit"
-            disabled={loading}
-            className="h-11 w-full rounded-xl font-bold"
-          >
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Entrar"}
-          </Button>
-        </form>
+        <>
+          <form onSubmit={submitCredentials} className="space-y-3">
+            <label className="block">
+              <span className="mb-1 block text-[12px] font-semibold text-muted-foreground">
+                E-mail
+              </span>
+              <Input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoComplete="username"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-[12px] font-semibold text-muted-foreground">
+                Senha
+              </span>
+              <Input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                autoComplete="current-password"
+              />
+            </label>
+            <Button
+              type="submit"
+              disabled={loading}
+              className="h-11 w-full rounded-xl font-bold"
+            >
+              {loading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Entrar"
+              )}
+            </Button>
+          </form>
+
+          {/* ⚠️ DEMO — remover em produção */}
+          {demo && (
+            <div className="mt-4 border-t border-border/60 pt-4">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={loginDemo}
+                disabled={loading}
+                className="h-11 w-full rounded-xl font-bold"
+              >
+                {loading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  "Acessar demo"
+                )}
+              </Button>
+              <p className="mt-2 text-center text-[11px] text-muted-foreground">
+                Modo demonstração — dados fictícios, sem login real.
+              </p>
+            </div>
+          )}
+        </>
       ) : (
         <form onSubmit={submitOtp} className="space-y-3">
           {info && (

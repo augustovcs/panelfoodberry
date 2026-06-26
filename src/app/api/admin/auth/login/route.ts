@@ -9,6 +9,8 @@ import { generateOtp, hashOtp } from "@/lib/security/otp";
 import { setAdmin2faCookie } from "@/lib/security/session";
 import { sendOtpEmail } from "@/lib/security/email";
 import { getServerEnv } from "@/lib/env";
+// ⚠️ DEMO — remover em produção
+import { isDemoMode, DEMO_USER, DEMO_PASSWORD } from "@/lib/admin/demo";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -28,6 +30,22 @@ export async function POST(req: Request) {
       { error: "Muitas tentativas. Aguarde um momento." },
       { status: 429, headers: { "Retry-After": String(rl.retryAfter) } },
     );
+  }
+
+  // ⚠️ DEMO — remover em produção: login fictício sem Supabase nem 2FA.
+  if (isDemoMode()) {
+    const parsed = schema.safeParse(await req.json().catch(() => null));
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Dados inválidos" }, { status: 422 });
+    }
+    if (parsed.data.password !== DEMO_PASSWORD) {
+      return NextResponse.json(
+        { error: "Senha demo incorreta (demo1234)." },
+        { status: 401 },
+      );
+    }
+    setAdmin2faCookie(DEMO_USER.userId);
+    return NextResponse.json({ step: "done", demo: true });
   }
 
   const supabase = createServerSupabase();

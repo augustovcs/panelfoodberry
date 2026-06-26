@@ -3,6 +3,7 @@ import { z } from "zod";
 import { assertAdmin } from "@/lib/admin/guard";
 import { createAdminSupabase } from "@/lib/supabase/admin";
 import { audit } from "@/lib/admin/audit";
+import { isDemoMode, demoNoop } from "@/lib/admin/demo"; // ⚠️ DEMO — remover em produção
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -23,6 +24,7 @@ export async function PATCH(
 ) {
   const a = await assertAdmin();
   if ("response" in a) return a.response;
+  if (isDemoMode()) return demoNoop(); // ⚠️ DEMO — remover em produção
 
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success || Object.keys(parsed.data).length === 0) {
@@ -46,6 +48,7 @@ export async function DELETE(
 ) {
   const a = await assertAdmin();
   if ("response" in a) return a.response;
+  if (isDemoMode()) return demoNoop(); // ⚠️ DEMO — remover em produção
 
   const db = createAdminSupabase();
   const { error } = await db.from("items").delete().eq("id", params.id);

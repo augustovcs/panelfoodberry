@@ -3,6 +3,8 @@ import "server-only";
 import { createAdminSupabase } from "@/lib/supabase/admin";
 import { adminConfigured } from "./session";
 import type { OrderItemSnapshot, OrderStatus, DeliveryType } from "@/lib/types";
+// ⚠️ DEMO — remover em produção
+import { isDemoMode, demoDashboard, demoKitchen, demoAdminMenu } from "./demo";
 
 export interface DashboardStats {
   configured: boolean;
@@ -13,6 +15,7 @@ export interface DashboardStats {
 }
 
 export async function getDashboardStats(): Promise<DashboardStats> {
+  if (isDemoMode()) return demoDashboard; // ⚠️ DEMO — remover em produção
   if (!adminConfigured()) {
     return {
       configured: false,
@@ -68,6 +71,7 @@ export interface KitchenOrder {
 }
 
 export async function listKitchenOrders(): Promise<KitchenOrder[]> {
+  if (isDemoMode()) return demoKitchen; // ⚠️ DEMO — remover em produção
   if (!adminConfigured()) return [];
   const db = createAdminSupabase();
   const { data } = await db
@@ -98,6 +102,7 @@ export interface AdminMenu {
 }
 
 export async function getAdminMenu(): Promise<AdminMenu> {
+  if (isDemoMode()) return demoAdminMenu; // ⚠️ DEMO — remover em produção
   if (!adminConfigured()) {
     return { configured: false, categories: [], settings: null, coupons: [] };
   }

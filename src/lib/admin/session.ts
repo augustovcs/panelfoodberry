@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { readAdmin2fa } from "@/lib/security/session";
 import { clientEnv } from "@/lib/env";
+import { isDemoMode, DEMO_USER } from "./demo"; // ⚠️ DEMO — remover em produção
 
 export interface AdminSession {
   userId: string;
@@ -23,6 +24,12 @@ export function adminConfigured(): boolean {
  * mesmo usuário. Sem os dois, retorna null. Ver ARCHITECTURE.md §9.1.
  */
 export async function getAdminSession(): Promise<AdminSession | null> {
+  // ⚠️ DEMO — remover em produção: sessão fictícia sem Supabase.
+  if (isDemoMode()) {
+    const twofa = readAdmin2fa();
+    return twofa?.userId === DEMO_USER.userId ? { ...DEMO_USER } : null;
+  }
+
   const supabase = createServerSupabase();
   if (!supabase) return null;
 
