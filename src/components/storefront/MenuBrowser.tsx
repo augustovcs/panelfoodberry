@@ -90,7 +90,7 @@ export function MenuBrowser({ menu }: { menu: Menu }) {
     <>
       <TopBar
         name={restaurant.name}
-        adminUrl={clientEnv.NEXT_PUBLIC_ADMIN_URL}
+        adminUrl={clientEnv.NEXT_PUBLIC_ADMIN_URL ?? "/login"}
       />
 
       <StorefrontHeader

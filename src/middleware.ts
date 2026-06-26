@@ -37,9 +37,13 @@ export function middleware(req: NextRequest) {
     });
   }
 
-  // ── Roteamento por subdomínio (só com domínio real, não em localhost) ──
+  // ── Roteamento por subdomínio (OPT-IN) ──
+  // Por padrão DESLIGADO: o admin fica no mesmo domínio, em /login (caso Vercel).
+  // Para usar admin.<dominio> (ex.: Hostinger), defina ADMIN_SUBDOMAIN_ENABLED=1.
+  const subdomainEnabled = process.env.ADMIN_SUBDOMAIN_ENABLED === "1";
   const isLocal = host.startsWith("localhost") || host.startsWith("127.0.0.1");
-  if (!isLocal && host.includes(".")) {
+
+  if (subdomainEnabled && !isLocal && host.includes(".")) {
     const isAdminHost = host.startsWith("admin.");
 
     if (isAdminHost && path === "/") {

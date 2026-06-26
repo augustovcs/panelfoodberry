@@ -10,8 +10,10 @@ import { z } from "zod";
 
 // ── Públicas (expostas ao browser) ──
 const clientSchema = z.object({
-  NEXT_PUBLIC_SITE_URL: z.string().url().default("http://localhost:3000"),
-  NEXT_PUBLIC_ADMIN_URL: z.string().url().default("http://localhost:3000"),
+  NEXT_PUBLIC_SITE_URL: z.string().url().optional(),
+  // Só preencher quando o admin tiver subdomínio próprio (ex.: Hostinger).
+  // Vazio = admin no mesmo domínio, em /login (caso da Vercel).
+  NEXT_PUBLIC_ADMIN_URL: z.string().url().optional(),
   NEXT_PUBLIC_SUPABASE_URL: z.string().url().optional(),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1).optional(),
 });
