@@ -17,6 +17,11 @@ next-env.d.ts
 .vercel
 /coverage
 
+# Playwright
+/test-results
+/playwright-report
+/playwright/.cache
+
 # Documentos internos de planejamento (não versionar)
 ARCHITECTURE.md
 steps.md
