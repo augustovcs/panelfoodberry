@@ -136,6 +136,19 @@ export const demoAdminMenu: AdminMenu = {
       featured: it.featured,
       active: true,
       sort: ii,
+      option_groups: it.optionGroups.map((g, gi) => ({
+        id: `demo-${g.id}`,
+        name: g.name,
+        required: g.required,
+        min_select: g.minSelect,
+        max_select: g.maxSelect,
+        sort: gi,
+        options: g.options.map((o) => ({
+          id: `demo-${o.id}`,
+          name: o.name,
+          price: o.price,
+        })),
+      })),
     })),
   })),
   settings: {

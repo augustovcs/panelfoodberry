@@ -14,12 +14,27 @@ import {
   ImagePlus,
   Check,
   X,
+  ListPlus,
+  ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { iconByName, ICON_NAMES } from "@/lib/menu/icons";
 import { formatCurrency, cn } from "@/lib/utils";
 
+interface AdminOption {
+  id: string;
+  name: string;
+  price: number;
+}
+interface AdminGroup {
+  id: string;
+  name: string;
+  required: boolean;
+  min_select: number;
+  max_select: number;
+  options: AdminOption[];
+}
 interface AdminItem {
   id: string;
   name: string;
@@ -31,6 +46,7 @@ interface AdminItem {
   image_url: string | null;
   featured: boolean;
   active: boolean;
+  option_groups: AdminGroup[];
 }
 interface AdminCategory {
   id: string;
@@ -186,6 +202,7 @@ function ItemRow({ item }: { item: AdminItem }) {
   const [oldPrice, setOldPrice] = useState(
     item.old_price != null ? String(item.old_price) : "",
   );
+  const [expanded, setExpanded] = useState(false);
 
   const dirty =
     name !== item.name ||
@@ -308,6 +325,25 @@ function ItemRow({ item }: { item: AdminItem }) {
 
       {/* Ações */}
       <div className="ml-auto flex items-center gap-1.5">
+        <button
+          onClick={() => setExpanded((e) => !e)}
+          className={cn(
+            "flex h-9 items-center gap-1 rounded-lg border px-2 text-[12px] font-bold transition-colors",
+            expanded
+              ? "border-primary bg-primary/5 text-primary"
+              : "border-border text-muted-foreground hover:bg-accent",
+          )}
+          title="Complementos"
+        >
+          <ListPlus className="h-4 w-4" />
+          <span className="tabular-nums">{item.option_groups.length}</span>
+          <ChevronDown
+            className={cn(
+              "h-3.5 w-3.5 transition-transform",
+              expanded && "rotate-180",
+            )}
+          />
+        </button>
         <IconToggle
           on={item.featured}
           onClick={() =>
@@ -343,6 +379,206 @@ function ItemRow({ item }: { item: AdminItem }) {
           <Trash2 className="h-4 w-4" />
         </button>
       </div>
+
+      {expanded && (
+        <div className="w-full">
+          <ComplementosPanel item={item} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ComplementosPanel({ item }: { item: AdminItem }) {
+  return (
+    <div className="mt-1 rounded-xl border border-border/60 bg-secondary/30 p-3">
+      <p className="mb-2 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
+        Complementos / adicionais
+      </p>
+      <div className="space-y-2">
+        {item.option_groups.map((g) => (
+          <GroupBlock key={g.id} group={g} />
+        ))}
+        {item.option_groups.length === 0 && (
+          <p className="text-[12px] text-muted-foreground">
+            Sem grupos. Crie um (ex.: “Adicionais”, “Borda”).
+          </p>
+        )}
+      </div>
+      <AddGroup itemId={item.id} />
+    </div>
+  );
+}
+
+function GroupBlock({ group }: { group: AdminGroup }) {
+  const { call, busy } = useApi();
+  return (
+    <div className="rounded-lg border border-border/60 bg-card p-2.5">
+      <div className="flex items-center gap-2">
+        <span className="text-[13px] font-bold">{group.name}</span>
+        <span className="rounded bg-secondary px-1.5 text-[10px] font-semibold text-muted-foreground">
+          {group.required ? "obrigatório · " : ""}
+          {group.min_select}–{group.max_select}
+        </span>
+        <button
+          onClick={() => {
+            if (confirm(`Excluir grupo "${group.name}"?`))
+              call(`/api/admin/option-groups/${group.id}`, "DELETE");
+          }}
+          disabled={busy}
+          className="ml-auto grid h-7 w-7 place-items-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+          title="Excluir grupo"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
+      </div>
+      <div className="mt-1.5 flex flex-wrap gap-1.5">
+        {group.options.map((o) => (
+          <span
+            key={o.id}
+            className="inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-1 text-[12px]"
+          >
+            {o.name}
+            <span className="font-semibold tabular-nums text-muted-foreground">
+              +{formatCurrency(o.price)}
+            </span>
+            <button
+              onClick={() => call(`/api/admin/options/${o.id}`, "DELETE")}
+              className="text-muted-foreground hover:text-destructive"
+              aria-label={`Remover ${o.name}`}
+            >
+              <X className="h-3 w-3" />
+            </button>
+          </span>
+        ))}
+      </div>
+      <AddOption groupId={group.id} />
+    </div>
+  );
+}
+
+function AddOption({ groupId }: { groupId: string }) {
+  const { call, busy } = useApi();
+  const [name, setName] = useState("");
+  const [price, setPrice] = useState("");
+  return (
+    <div className="mt-2 flex flex-wrap items-center gap-1.5">
+      <Input
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="Adicional"
+        className="h-8 min-w-[120px] flex-1 text-[13px]"
+      />
+      <Input
+        value={price}
+        onChange={(e) => setPrice(e.target.value.replace(",", "."))}
+        inputMode="decimal"
+        placeholder="0,00"
+        className="h-8 w-20 text-[13px] tabular-nums"
+      />
+      <Button
+        size="sm"
+        variant="secondary"
+        disabled={busy || !name.trim()}
+        onClick={async () => {
+          const ok = await call(
+            `/api/admin/option-groups/${groupId}/options`,
+            "POST",
+            {
+              name,
+              price: Number(price || 0),
+            },
+          );
+          if (ok) {
+            setName("");
+            setPrice("");
+          }
+        }}
+        className="h-8"
+      >
+        {busy ? (
+          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+        ) : (
+          <Plus className="h-3.5 w-3.5" />
+        )}
+      </Button>
+    </div>
+  );
+}
+
+function AddGroup({ itemId }: { itemId: string }) {
+  const { call, busy } = useApi();
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [max, setMax] = useState("1");
+  const [required, setRequired] = useState(false);
+
+  if (!open) {
+    return (
+      <button
+        onClick={() => setOpen(true)}
+        className="mt-2 flex items-center gap-1.5 text-[12px] font-semibold text-primary"
+      >
+        <Plus className="h-3.5 w-3.5" /> Novo grupo
+      </button>
+    );
+  }
+  return (
+    <div className="mt-2 flex flex-wrap items-end gap-2 rounded-lg border border-border/60 bg-card p-2.5">
+      <Input
+        autoFocus
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="Nome do grupo"
+        className="h-8 min-w-[120px] flex-1 text-[13px]"
+      />
+      <Input
+        value={max}
+        onChange={(e) => setMax(e.target.value.replace(/\D/g, ""))}
+        inputMode="numeric"
+        placeholder="máx"
+        className="h-8 w-16 text-[13px] tabular-nums"
+        title="Máximo de escolhas"
+      />
+      <label className="flex items-center gap-1 text-[12px] text-muted-foreground">
+        <input
+          type="checkbox"
+          checked={required}
+          onChange={(e) => setRequired(e.target.checked)}
+        />
+        obrig.
+      </label>
+      <Button
+        size="sm"
+        disabled={busy || !name.trim()}
+        onClick={async () => {
+          const ok = await call(
+            `/api/admin/items/${itemId}/option-groups`,
+            "POST",
+            {
+              name,
+              required,
+              min_select: required ? 1 : 0,
+              max_select: Math.max(1, Number(max || 1)),
+            },
+          );
+          if (ok) {
+            setName("");
+            setOpen(false);
+          }
+        }}
+        className="h-8"
+      >
+        {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Criar"}
+      </Button>
+      <Button
+        size="sm"
+        variant="ghost"
+        onClick={() => setOpen(false)}
+        className="h-8"
+      >
+        <X className="h-3.5 w-3.5" />
+      </Button>
     </div>
   );
 }
