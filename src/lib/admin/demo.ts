@@ -13,8 +13,22 @@ import type { DashboardStats, KitchenOrder, AdminMenu } from "./data";
  * Supabase/Resend e remova as ramificações `isDemoMode()` (ver memória do projeto
  * "anotabem-demo-mock" para a lista exata de pontos a limpar).
  */
+function supabaseConfigured(): boolean {
+  return (
+    !!process.env.NEXT_PUBLIC_SUPABASE_URL &&
+    !!process.env.SUPABASE_SERVICE_ROLE_KEY
+  );
+}
+
+/**
+ * Demo ligado quando: `DEMO_MODE=1` (forçar on) OU o Supabase ainda não está
+ * configurado (caso Vercel sem envs). `DEMO_MODE=0` força off. Ao configurar o
+ * Supabase real (produção), o demo se desliga sozinho → 2FA real assume.
+ */
 export function isDemoMode(): boolean {
-  return process.env.DEMO_MODE === "1";
+  if (process.env.DEMO_MODE === "1") return true;
+  if (process.env.DEMO_MODE === "0") return false;
+  return !supabaseConfigured();
 }
 
 export const DEMO_USER = { userId: "demo-owner", email: "demo@anotabem.app" };
