@@ -9,12 +9,24 @@ import { isDemoMode, demoNoop } from "@/lib/admin/demo"; // ⚠️ DEMO — remo
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const schema = z.object({
-  code: couponCodeSchema,
-  kind: z.enum(["percent", "fixed", "free_delivery"]),
-  value: z.number().nonnegative().max(100000).default(0),
-  min_order: z.number().nonnegative().max(100000).default(0),
-});
+const schema = z
+  .object({
+    code: couponCodeSchema,
+    kind: z.enum(["percent", "fixed", "free_delivery"]),
+    value: z.number().nonnegative().max(100000).default(0),
+    min_order: z.number().nonnegative().max(100000).default(0),
+    scope: z.enum(["order", "items"]).default("order"),
+    target_item_ids: z.array(z.string().uuid()).max(200).default([]),
+  })
+  // Cupom fixo (escopo "items") precisa de ao menos um item e não usa frete grátis.
+  .refine(
+    (d) => d.scope !== "items" || d.target_item_ids.length > 0,
+    "Selecione ao menos um item para o cupom fixo",
+  )
+  .refine(
+    (d) => d.scope !== "items" || d.kind !== "free_delivery",
+    "Cupom fixo aceita só % ou R$ de desconto",
+  );
 
 export async function POST(req: Request) {
   const a = await assertAdmin();

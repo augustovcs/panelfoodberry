@@ -16,6 +16,10 @@ import {
   X,
   ListPlus,
   ChevronDown,
+  AlertTriangle,
+  Percent,
+  Truck,
+  Pin,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -61,6 +65,9 @@ interface AdminCoupon {
   value: number;
   min_order: number;
   active: boolean;
+  /** "order" = cupom de código no carrinho · "items" = cupom fixo em itens. */
+  scope?: "order" | "items";
+  target_item_ids?: string[];
 }
 interface AdminSettings {
   name: string;
@@ -120,9 +127,13 @@ export function MenuEditor({
       </div>
 
       {!configured && (
-        <div className="mt-3 rounded-xl border border-warning/30 bg-warning/10 px-4 py-3 text-[13px] text-warning-foreground">
-          Modo demonstração — as alterações (inclusive fotos) são salvas quando
-          o Supabase estiver conectado. Ver <code>supabase/README.md</code>.
+        <div className="mt-3 flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-[13px] text-amber-900">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+          <span>
+            Modo demonstração — as alterações (inclusive fotos) são salvas
+            quando o Supabase estiver conectado. Ver{" "}
+            <code>supabase/README.md</code>.
+          </span>
         </div>
       )}
 
@@ -185,7 +196,7 @@ export function MenuEditor({
       )}
 
       {tab === "negocio" && <SettingsForm settings={settings} />}
-      {tab === "cupons" && <CouponsPanel coupons={coupons} />}
+      {tab === "cupons" && <CouponsPanel coupons={coupons} items={allItems} />}
     </div>
   );
 }
@@ -1037,103 +1048,385 @@ function SettingsForm({ settings }: { settings: AdminSettings | null }) {
 
 /* ─────────────────────────── Cupons ─────────────────────────── */
 
-function CouponsPanel({ coupons }: { coupons: AdminCoupon[] }) {
+function discountLabel(c: AdminCoupon): string {
+  if (c.kind === "free_delivery") return "Frete grátis";
+  if (c.kind === "percent") return `${c.value}% OFF`;
+  return `${formatCurrency(c.value)} OFF`;
+}
+
+function CouponsPanel({
+  coupons,
+  items,
+}: {
+  coupons: AdminCoupon[];
+  items: AdminItem[];
+}) {
+  const { call } = useApi();
+  const nameById = new Map(items.map((i) => [i.id, i.name]));
+
+  const codeCoupons = coupons.filter((c) => c.scope !== "items");
+  const fixedCoupons = coupons.filter((c) => c.scope === "items");
+
+  function toggleActive(c: AdminCoupon) {
+    call(`/api/admin/coupons/${c.id}`, "PATCH", { active: !c.active });
+  }
+  function remove(c: AdminCoupon) {
+    if (confirm(`Excluir o cupom "${c.code}"?`))
+      call(`/api/admin/coupons/${c.id}`, "DELETE");
+  }
+
+  return (
+    <div className="max-w-2xl space-y-8">
+      {/* ── Cupons de código ── */}
+      <section>
+        <header className="mb-2 flex items-center gap-2">
+          <Tag className="h-4 w-4 text-primary" />
+          <h3 className="font-display text-[15px] font-extrabold">
+            Cupons de código
+          </h3>
+          <span className="text-[12px] text-muted-foreground">
+            cliente digita no carrinho
+          </span>
+        </header>
+        <div className="space-y-2">
+          {codeCoupons.map((c) => (
+            <div
+              key={c.id}
+              className="flex items-center gap-3 rounded-xl border border-border/60 bg-card p-3"
+            >
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+                {c.kind === "free_delivery" ? (
+                  <Truck className="h-[18px] w-[18px]" />
+                ) : (
+                  <Percent className="h-[18px] w-[18px]" />
+                )}
+              </span>
+              <div className="min-w-0 flex-1">
+                <span className="font-display text-[14px] font-extrabold">
+                  {c.code}
+                </span>
+                <span className="ml-2 text-[12px] font-semibold text-muted-foreground">
+                  {discountLabel(c)}
+                </span>
+              </div>
+              <CouponActions
+                active={c.active}
+                onToggle={() => toggleActive(c)}
+                onRemove={() => remove(c)}
+              />
+            </div>
+          ))}
+          {codeCoupons.length === 0 && (
+            <p className="rounded-xl border border-dashed border-border bg-card/50 px-4 py-6 text-center text-[13px] text-muted-foreground">
+              Nenhum cupom de código ainda.
+            </p>
+          )}
+        </div>
+        <NewCodeCoupon />
+      </section>
+
+      {/* ── Cupons fixos (promoção automática em itens) ── */}
+      <section>
+        <header className="mb-2 flex items-center gap-2">
+          <Pin className="h-4 w-4 text-primary" />
+          <h3 className="font-display text-[15px] font-extrabold">
+            Cupons fixos
+          </h3>
+          <span className="text-[12px] text-muted-foreground">
+            desconto automático em itens escolhidos
+          </span>
+        </header>
+        <div className="space-y-2">
+          {fixedCoupons.map((c) => (
+            <div
+              key={c.id}
+              className="rounded-xl border border-border/60 bg-card p-3"
+            >
+              <div className="flex items-center gap-3">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-success/10 text-success">
+                  <Pin className="h-[18px] w-[18px]" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <span className="font-display text-[14px] font-extrabold">
+                    {c.code}
+                  </span>
+                  <span className="ml-2 rounded-md bg-success/10 px-1.5 py-0.5 text-[11px] font-bold text-success">
+                    {discountLabel(c)}
+                  </span>
+                </div>
+                <CouponActions
+                  active={c.active}
+                  onToggle={() => toggleActive(c)}
+                  onRemove={() => remove(c)}
+                />
+              </div>
+              <div className="mt-2 flex flex-wrap gap-1.5 pl-12">
+                {(c.target_item_ids ?? []).map((id) => (
+                  <span
+                    key={id}
+                    className="rounded-full bg-secondary px-2 py-0.5 text-[11.5px] font-medium"
+                  >
+                    {nameById.get(id) ?? "item removido"}
+                  </span>
+                ))}
+                {(c.target_item_ids ?? []).length === 0 && (
+                  <span className="text-[11.5px] text-muted-foreground">
+                    sem itens vinculados
+                  </span>
+                )}
+              </div>
+            </div>
+          ))}
+          {fixedCoupons.length === 0 && (
+            <p className="rounded-xl border border-dashed border-border bg-card/50 px-4 py-6 text-center text-[13px] text-muted-foreground">
+              Nenhum cupom fixo. Crie uma promoção em itens específicos abaixo.
+            </p>
+          )}
+        </div>
+        <NewFixedCoupon items={items} />
+      </section>
+    </div>
+  );
+}
+
+function CouponActions({
+  active,
+  onToggle,
+  onRemove,
+}: {
+  active: boolean;
+  onToggle: () => void;
+  onRemove: () => void;
+}) {
+  return (
+    <div className="flex shrink-0 items-center gap-1.5">
+      <button
+        onClick={onToggle}
+        className={cn(
+          "rounded-full px-3 py-1 text-[12px] font-bold transition-colors",
+          active
+            ? "bg-emerald-50 text-emerald-700"
+            : "bg-secondary text-muted-foreground",
+        )}
+      >
+        {active ? "Ativo" : "Inativo"}
+      </button>
+      <button
+        onClick={onRemove}
+        className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+        title="Excluir"
+      >
+        <Trash2 className="h-4 w-4" />
+      </button>
+    </div>
+  );
+}
+
+function NewCodeCoupon() {
   const { call, busy } = useApi();
   const [code, setCode] = useState("");
   const [kind, setKind] = useState("percent");
   const [value, setValue] = useState("");
 
-  const kindLabel = (k: string) =>
-    k === "percent" ? "%" : k === "fixed" ? "R$" : "Frete grátis";
+  return (
+    <div className="shadow-soft mt-3 rounded-2xl border border-border/60 bg-card p-4">
+      <h4 className="mb-3 text-[13px] font-bold text-muted-foreground">
+        Novo cupom de código
+      </h4>
+      <div className="flex flex-wrap gap-2">
+        <Input
+          placeholder="CÓDIGO"
+          value={code}
+          onChange={(e) => setCode(e.target.value.toUpperCase())}
+          className="h-10 min-w-[120px] flex-1 uppercase"
+        />
+        <select
+          value={kind}
+          onChange={(e) => setKind(e.target.value)}
+          className="h-10 rounded-md border border-input bg-background px-2 text-[13px]"
+        >
+          <option value="percent">% desconto</option>
+          <option value="fixed">R$ desconto</option>
+          <option value="free_delivery">Frete grátis</option>
+        </select>
+        {kind !== "free_delivery" && (
+          <Input
+            placeholder="Valor"
+            value={value}
+            onChange={(e) => setValue(e.target.value.replace(",", "."))}
+            inputMode="decimal"
+            className="h-10 w-24"
+          />
+        )}
+        <Button
+          disabled={busy || code.length < 3}
+          onClick={async () => {
+            const ok = await call("/api/admin/coupons", "POST", {
+              code,
+              kind,
+              value: kind === "free_delivery" ? 0 : Number(value || 0),
+              scope: "order",
+            });
+            if (ok) {
+              setCode("");
+              setValue("");
+            }
+          }}
+          className="h-10"
+        >
+          Criar
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function NewFixedCoupon({ items }: { items: AdminItem[] }) {
+  const { call, busy } = useApi();
+  const [open, setOpen] = useState(false);
+  const [code, setCode] = useState("");
+  const [kind, setKind] = useState<"percent" | "fixed">("percent");
+  const [value, setValue] = useState("");
+  const [picked, setPicked] = useState<Set<string>>(new Set());
+
+  function toggle(id: string) {
+    setPicked((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  if (!open) {
+    return (
+      <button
+        onClick={() => setOpen(true)}
+        className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-2xl border border-dashed border-border py-3 text-[13px] font-semibold text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+      >
+        <Plus className="h-4 w-4" /> Novo cupom fixo
+      </button>
+    );
+  }
 
   return (
-    <div className="max-w-lg space-y-4">
-      <div className="space-y-2">
-        {coupons.map((c) => (
-          <div
-            key={c.id}
-            className="flex items-center justify-between rounded-xl border border-border/60 bg-card p-3"
-          >
-            <div>
-              <span className="font-display text-[14px] font-extrabold">
-                {c.code}
-              </span>
-              <span className="ml-2 text-[12px] text-muted-foreground">
-                {c.kind === "free_delivery"
-                  ? "Frete grátis"
-                  : `${c.value}${kindLabel(c.kind)}`}
-              </span>
-            </div>
-            <button
-              onClick={() =>
-                call(`/api/admin/coupons/${c.id}`, "PATCH", {
-                  active: !c.active,
-                })
-              }
-              className={cn(
-                "rounded-full px-3 py-1 text-[12px] font-bold",
-                c.active
-                  ? "bg-emerald-50 text-emerald-700"
-                  : "bg-secondary text-muted-foreground",
-              )}
-            >
-              {c.active ? "Ativo" : "Inativo"}
-            </button>
-          </div>
-        ))}
-        {coupons.length === 0 && (
-          <p className="text-sm text-muted-foreground">Nenhum cupom ainda.</p>
-        )}
-      </div>
+    <div className="shadow-soft mt-3 rounded-2xl border border-border/60 bg-card p-4">
+      <h4 className="mb-3 flex items-center gap-2 font-display text-[14px] font-extrabold">
+        <Pin className="h-4 w-4 text-primary" /> Novo cupom fixo
+      </h4>
 
-      <div className="shadow-soft rounded-2xl border border-border/60 bg-card p-4">
-        <h3 className="mb-3 flex items-center gap-2 font-display text-[14px] font-extrabold">
-          <Tag className="h-4 w-4 text-primary" />
-          Novo cupom
-        </h3>
-        <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-end gap-2">
+        <label className="block flex-1">
+          <span className="mb-1 block text-[11px] font-semibold text-muted-foreground">
+            Nome / etiqueta
+          </span>
           <Input
-            placeholder="CÓDIGO"
             value={code}
             onChange={(e) => setCode(e.target.value.toUpperCase())}
-            className="h-10 min-w-[120px] flex-1 uppercase"
+            placeholder="EX: SMASH-15OFF"
+            className="h-10 min-w-[140px] uppercase"
           />
+        </label>
+        <label className="block">
+          <span className="mb-1 block text-[11px] font-semibold text-muted-foreground">
+            Tipo
+          </span>
           <select
             value={kind}
-            onChange={(e) => setKind(e.target.value)}
+            onChange={(e) => setKind(e.target.value as "percent" | "fixed")}
             className="h-10 rounded-md border border-input bg-background px-2 text-[13px]"
           >
             <option value="percent">% desconto</option>
             <option value="fixed">R$ desconto</option>
-            <option value="free_delivery">Frete grátis</option>
           </select>
-          {kind !== "free_delivery" && (
-            <Input
-              placeholder="Valor"
-              value={value}
-              onChange={(e) => setValue(e.target.value.replace(",", "."))}
-              inputMode="decimal"
-              className="h-10 w-24"
-            />
+        </label>
+        <label className="block">
+          <span className="mb-1 block text-[11px] font-semibold text-muted-foreground">
+            {kind === "percent" ? "%" : "R$"}
+          </span>
+          <Input
+            value={value}
+            onChange={(e) => setValue(e.target.value.replace(",", "."))}
+            inputMode="decimal"
+            placeholder={kind === "percent" ? "15" : "5,00"}
+            className="h-10 w-20 tabular-nums"
+          />
+        </label>
+      </div>
+
+      <p className="mb-2 mt-4 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+        Aplicar em ({picked.size} item{picked.size === 1 ? "" : "s"})
+      </p>
+      <div className="max-h-52 space-y-1 overflow-y-auto rounded-xl border border-border/60 p-1.5">
+        {items.map((it) => {
+          const on = picked.has(it.id);
+          return (
+            <button
+              key={it.id}
+              type="button"
+              onClick={() => toggle(it.id)}
+              className={cn(
+                "flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition-colors",
+                on ? "bg-primary/5" : "hover:bg-accent",
+              )}
+            >
+              <span
+                className={cn(
+                  "grid h-[18px] w-[18px] place-items-center rounded border-2",
+                  on ? "border-primary bg-primary" : "border-border",
+                )}
+              >
+                {on && <Check className="h-3 w-3 text-primary-foreground" />}
+              </span>
+              <span className="flex-1 text-[13px] font-medium">{it.name}</span>
+              {it.type === "combo" && (
+                <span className="rounded bg-primary/10 px-1.5 text-[10px] font-bold uppercase text-primary">
+                  combo
+                </span>
+              )}
+              <span className="text-[12px] tabular-nums text-muted-foreground">
+                {formatCurrency(it.price)}
+              </span>
+            </button>
+          );
+        })}
+        {items.length === 0 && (
+          <p className="px-2 py-4 text-center text-[12px] text-muted-foreground">
+            Cadastre itens no cardápio primeiro.
+          </p>
+        )}
+      </div>
+
+      <div className="mt-3 flex gap-2">
+        <Button
+          disabled={busy || code.length < 3 || !value || picked.size === 0}
+          onClick={async () => {
+            const ok = await call("/api/admin/coupons", "POST", {
+              code,
+              kind,
+              value: Number(value || 0),
+              scope: "items",
+              target_item_ids: [...picked],
+            });
+            if (ok) {
+              setCode("");
+              setValue("");
+              setPicked(new Set());
+              setOpen(false);
+            }
+          }}
+          className="h-10 gap-1.5"
+        >
+          {busy ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Check className="h-4 w-4" />
           )}
-          <Button
-            disabled={busy || !code}
-            onClick={async () => {
-              const ok = await call("/api/admin/coupons", "POST", {
-                code,
-                kind,
-                value: kind === "free_delivery" ? 0 : Number(value || 0),
-              });
-              if (ok) {
-                setCode("");
-                setValue("");
-              }
-            }}
-            className="h-10"
-          >
-            Criar
-          </Button>
-        </div>
+          Criar cupom fixo
+        </Button>
+        <Button variant="ghost" onClick={() => setOpen(false)} className="h-10">
+          Cancelar
+        </Button>
       </div>
     </div>
   );

@@ -45,24 +45,43 @@ const now = Date.now();
 const day = (back: number) =>
   new Date(now - back * 86_400_000).toISOString().slice(0, 10);
 
+const last14 = Array.from({ length: 14 }, (_, i) => {
+  const net = 180 + Math.round(Math.abs(Math.sin(i + 1)) * 220) + i * 12;
+  return {
+    day: day(13 - i),
+    net,
+    orders: 6 + Math.round(net / 42),
+  };
+});
+
 export const demoDashboard: DashboardStats = {
   configured: true,
   todayCount: 14,
   todayGross: 687.5,
   openOrders: 3,
-  last14: Array.from({ length: 14 }, (_, i) => ({
-    day: day(13 - i),
-    net: 180 + Math.round(Math.abs(Math.sin(i + 1)) * 220) + i * 12,
-  })),
+  avgTicket: 687.5 / 14,
+  cancelledToday: 1,
+  deliveryCount: 9,
+  pickupCount: 5,
+  grossDelta: ((last14[13]!.net - last14[12]!.net) / last14[12]!.net) * 100,
+  last14,
 };
 
 export const demoKitchen: KitchenOrder[] = [
   {
     code: "A7K2P",
     customerName: "João Silva",
+    customerPhone: "5511987654321",
     status: "queue",
     deliveryType: "delivery",
+    subtotal: 69.8,
+    deliveryFee: 6.9,
+    discount: 0,
     total: 76.7,
+    couponCode: null,
+    paymentMethod: "dinheiro",
+    changeFor: 100,
+    addressLine: "Rua das Acácias, 245 - Apto 52 — Jardim Paulista, São Paulo",
     notes: "Sem cebola",
     createdAt: new Date(now - 4 * 60000).toISOString(),
     items: [
@@ -71,7 +90,7 @@ export const demoKitchen: KitchenOrder[] = [
         qty: 2,
         unitPrice: 34.9,
         options: [{ name: "Bacon crocante", price: 5 }],
-        notes: "",
+        notes: "Capricha no bacon",
         lineTotal: 69.8,
       },
     ],
@@ -79,9 +98,17 @@ export const demoKitchen: KitchenOrder[] = [
   {
     code: "B3M9X",
     customerName: "Maria Oliveira",
+    customerPhone: "5511991234567",
     status: "production",
     deliveryType: "pickup",
+    subtotal: 61.9,
+    deliveryFee: 0,
+    discount: 8,
     total: 53.9,
+    couponCode: "PRIMEIRA10",
+    paymentMethod: "pix_entrega",
+    changeFor: null,
+    addressLine: null,
     notes: null,
     createdAt: new Date(now - 12 * 60000).toISOString(),
     items: [
@@ -98,9 +125,17 @@ export const demoKitchen: KitchenOrder[] = [
   {
     code: "C8T4L",
     customerName: "Carlos Mendes",
+    customerPhone: "5511996667788",
     status: "sent",
     deliveryType: "delivery",
+    subtotal: 24.9,
+    deliveryFee: 6.9,
+    discount: 0,
     total: 31.8,
+    couponCode: null,
+    paymentMethod: "cartao_maquina",
+    changeFor: null,
+    addressLine: "Av. Brasil, 1200 — Centro, Campinas",
     notes: null,
     createdAt: new Date(now - 26 * 60000).toISOString(),
     items: [
@@ -167,6 +202,8 @@ export const demoAdminMenu: AdminMenu = {
       value: 10,
       min_order: 30,
       active: true,
+      scope: "order",
+      target_item_ids: [],
     },
     {
       id: "demo-c2",
@@ -175,6 +212,29 @@ export const demoAdminMenu: AdminMenu = {
       value: 0,
       min_order: 50,
       active: false,
+      scope: "order",
+      target_item_ids: [],
+    },
+    {
+      // Cupom fixo (promoção automática) — % de desconto em combos/lanches específicos.
+      id: "demo-c3",
+      code: "SMASH-15OFF",
+      kind: "percent",
+      value: 15,
+      min_order: 0,
+      active: true,
+      scope: "items",
+      target_item_ids: ["demo-smash-classico", "demo-smash-duplo"],
+    },
+    {
+      id: "demo-c4",
+      code: "PIZZA-5REAIS",
+      kind: "fixed",
+      value: 5,
+      min_order: 0,
+      active: true,
+      scope: "items",
+      target_item_ids: ["demo-margherita", "demo-quatro-queijos"],
     },
   ],
 };
