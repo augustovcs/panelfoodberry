@@ -1,7 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { PromoBanner as Promo } from "@/lib/menu/types";
 import { cn } from "@/lib/utils";
 
@@ -64,31 +63,12 @@ export function PromoBanner({ banners }: { banners: Promo[] }) {
                   fill
                   priority={i === 0}
                   sizes="100vw"
-                  className="object-cover object-center"
+                  className="object-cover object-left"
                 />
               </div>
             </div>
           ))}
         </div>
-
-        {banners.length > 1 && (
-          <>
-            <button
-              onClick={() => goTo(active - 1)}
-              aria-label="Banner anterior"
-              className="shadow-cart absolute left-3 top-1/2 hidden h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white/95 text-foreground transition-transform hover:scale-105 lg:grid"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <button
-              onClick={() => goTo(active + 1)}
-              aria-label="Próximo banner"
-              className="shadow-cart absolute right-3 top-1/2 hidden h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white/95 text-foreground transition-transform hover:scale-105 lg:grid"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </button>
-          </>
-        )}
       </div>
 
       {banners.length > 1 && (
