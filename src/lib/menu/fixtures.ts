@@ -38,34 +38,29 @@ export const RESTAURANT: RestaurantInfo = {
   whatsapp: "5511999999999",
 };
 
-/** Banners promocionais da loja (mock; editáveis no painel quando o banco existir). */
+/**
+ * Banners promocionais da loja (full-branded, criados no Canva).
+ * A arte já traz título, subtítulo e botão; a UI só exibe a imagem.
+ * `gradient` = cor sólida de fundo enquanto a imagem carrega.
+ */
 export const BANNERS: PromoBanner[] = [
   {
     id: "combo-casal",
-    title: "Combo Casal",
-    subtitle: "2 smash + fritas + 2 bebidas",
-    cta: "Peça já",
-    badge: "-30%",
-    gradient: "linear-gradient(135deg, #ea580c 0%, #9a3412 100%)",
-    imageUrl: P(7497253, 1400),
+    title: "Combo Casal — 2 smash + fritas + 2 bebidas",
+    gradient: "#ea580c",
+    imageUrl: "/brand/banner-1.png",
   },
   {
     id: "frete-gratis",
-    title: "Frete grátis",
-    subtitle: "Em pedidos acima de R$ 50",
-    cta: "Aproveitar",
-    badge: "Hoje",
-    gradient: "linear-gradient(135deg, #b45309 0%, #78350f 100%)",
-    imageUrl: P(4021952, 1400),
+    title: "Frete grátis em pedidos acima de R$ 50",
+    gradient: "#1f2937",
+    imageUrl: "/brand/banner-2.png",
   },
   {
     id: "noite-pizza",
-    title: "Terça da Pizza",
-    subtitle: "Toda pizza grande com 20% off",
-    cta: "Ver pizzas",
-    badge: "Terça",
-    gradient: "linear-gradient(135deg, #c2410c 0%, #7c2d12 100%)",
-    imageUrl: P(6493570, 1400),
+    title: "Terça da Pizza — toda pizza grande com 20% off",
+    gradient: "#ea580c",
+    imageUrl: "/brand/banner-3.png",
   },
 ];
 
