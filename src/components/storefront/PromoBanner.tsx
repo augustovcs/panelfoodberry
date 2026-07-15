@@ -46,7 +46,7 @@ export function PromoBanner({ banners }: { banners: Promo[] }) {
 
   return (
     <section className="pt-5 lg:pt-6" aria-label="Promoções da loja">
-      <div className="relative mx-auto max-w-[880px]">
+      <div className="relative w-full">
         <div
           ref={trackRef}
           onScroll={onScroll}
@@ -55,7 +55,7 @@ export function PromoBanner({ banners }: { banners: Promo[] }) {
           {banners.map((b, i) => (
             <div key={b.id} className="w-full shrink-0 snap-center">
               <div
-                className="relative aspect-[2/1] overflow-hidden rounded-3xl"
+                className="relative aspect-[16/9] overflow-hidden rounded-3xl sm:aspect-[5/2] lg:aspect-[39/10]"
                 style={{ background: b.gradient }}
               >
                 <Image
@@ -63,8 +63,8 @@ export function PromoBanner({ banners }: { banners: Promo[] }) {
                   alt={b.title}
                   fill
                   priority={i === 0}
-                  sizes="(min-width: 1024px) 880px, 100vw"
-                  className="object-cover"
+                  sizes="100vw"
+                  className="object-cover object-center"
                 />
               </div>
             </div>

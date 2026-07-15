@@ -47,20 +47,26 @@ export const BANNERS: PromoBanner[] = [
   {
     id: "combo-casal",
     title: "Combo Casal — 2 smash + fritas + 2 bebidas",
-    gradient: "#ea580c",
+    gradient: "#fa6e00",
     imageUrl: "/brand/banner-1.png",
   },
   {
     id: "frete-gratis",
     title: "Frete grátis em pedidos acima de R$ 50",
-    gradient: "#1f2937",
+    gradient: "#1c262d",
     imageUrl: "/brand/banner-2.png",
   },
   {
-    id: "noite-pizza",
-    title: "Terça da Pizza — toda pizza grande com 20% off",
-    gradient: "#ea580c",
+    id: "cupom-boas-vindas",
+    title: "Cupom de boas-vindas — 15% OFF na primeira compra",
+    gradient: "#ec7708",
     imageUrl: "/brand/banner-3.png",
+  },
+  {
+    id: "smash-dobro",
+    title: "Smash em Dobro — 2ª unidade com 50% OFF",
+    gradient: "#1f2937",
+    imageUrl: "/brand/banner-4.png",
   },
 ];
 
