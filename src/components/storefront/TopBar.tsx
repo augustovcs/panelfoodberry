@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { LayoutGrid, ClipboardList, Store } from "lucide-react";
+import Image from "next/image";
+import { LayoutGrid, ClipboardList } from "lucide-react";
 
 interface TopBarProps {
   name: string;
@@ -10,14 +11,16 @@ interface TopBarProps {
 export function TopBar({ name, adminUrl }: TopBarProps) {
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-[#faf6f0]/90 backdrop-blur-md">
-      <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-3 px-4 lg:px-6">
-        <div className="flex min-w-0 items-center gap-2">
-          <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground">
-            <Store className="h-[15px] w-[15px]" />
-          </div>
-          <span className="truncate font-display text-[15px] font-extrabold">
-            {name}
-          </span>
+      <div className="mx-auto flex h-14 max-w-[1400px] items-center justify-between gap-3 px-4 lg:px-8">
+        <div className="flex min-w-0 items-center">
+          <Image
+            src="/brand/logo.png"
+            alt={name}
+            width={216}
+            height={168}
+            priority
+            className="h-9 w-auto"
+          />
         </div>
 
         <div className="flex items-center gap-1.5">

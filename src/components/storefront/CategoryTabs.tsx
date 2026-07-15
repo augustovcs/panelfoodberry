@@ -19,11 +19,11 @@ export function CategoryTabs({
 }: CategoryTabsProps) {
   return (
     <nav className="sticky top-14 z-30 mt-6 border-b border-border/60 bg-[#faf6f0]/90 backdrop-blur-md">
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto max-w-[1400px]">
         <div
           ref={tabsRef}
           role="tablist"
-          className="scrollbar-none flex touch-pan-x gap-2 overflow-x-auto px-4 py-2.5 lg:px-6"
+          className="scrollbar-none flex touch-pan-x gap-2 overflow-x-auto px-4 py-2.5 lg:px-8"
         >
           {categories.map((cat) => {
             const Icon = iconByName(cat.icon);

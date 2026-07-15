@@ -109,8 +109,10 @@ export function MenuBrowser({ menu }: { menu: Menu }) {
         />
       )}
 
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 pb-28 lg:px-6 lg:pb-12">
-        <div className="lg:flex lg:gap-8 lg:pt-6">
+      <main className="mx-auto w-full max-w-[1400px] flex-1 px-4 pb-28 lg:px-8 lg:pb-14">
+        {!isSearching && <PromoBanner banners={banners} />}
+
+        <div className="lg:flex lg:gap-8 lg:pt-8">
           <div className="min-w-0 flex-1">
             {isSearching ? (
               <SearchResults
@@ -120,8 +122,6 @@ export function MenuBrowser({ menu }: { menu: Menu }) {
               />
             ) : (
               <>
-                <PromoBanner banners={banners} />
-
                 <Destaques items={featured} onSelect={openItem} />
 
                 {categories.map((cat) => {
@@ -145,7 +145,7 @@ export function MenuBrowser({ menu }: { menu: Menu }) {
                         </span>
                       </div>
 
-                      <div className="mt-1 grid gap-x-6 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                      <div className="mt-1 grid gap-x-8 sm:grid-cols-2 lg:grid-cols-2">
                         {cat.items.map((item) => (
                           <div
                             key={item.id}

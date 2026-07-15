@@ -16,6 +16,10 @@ import type {
 const U = (id: string, w = 400) =>
   `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=70`;
 
+// Fotos royalty-free do Pexels (image-resolver). Padrão 800px p/ itens.
+const P = (id: number, w = 800) =>
+  `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=${w}`;
+
 export const RESTAURANT: RestaurantInfo = {
   name: "Sabor & Arte",
   tagline: "Hambúrgueres artesanais, pizzas na pedra & mais",
@@ -43,7 +47,7 @@ export const BANNERS: PromoBanner[] = [
     cta: "Peça já",
     badge: "-30%",
     gradient: "linear-gradient(135deg, #ea580c 0%, #9a3412 100%)",
-    imageUrl: U("1550547660-d9450f859349", 900),
+    imageUrl: P(7497253, 1400),
   },
   {
     id: "frete-gratis",
@@ -52,7 +56,7 @@ export const BANNERS: PromoBanner[] = [
     cta: "Aproveitar",
     badge: "Hoje",
     gradient: "linear-gradient(135deg, #b45309 0%, #78350f 100%)",
-    imageUrl: U("1571091718767-18b5b1457add", 900),
+    imageUrl: P(4021952, 1400),
   },
   {
     id: "noite-pizza",
@@ -61,7 +65,7 @@ export const BANNERS: PromoBanner[] = [
     cta: "Ver pizzas",
     badge: "Terça",
     gradient: "linear-gradient(135deg, #c2410c 0%, #7c2d12 100%)",
-    imageUrl: U("1513104890138-7c749659a591", 900),
+    imageUrl: P(6493570, 1400),
   },
 ];
 
@@ -120,7 +124,7 @@ const RAW: RawCategory[] = [
         badge: "Mais pedido",
         featured: true,
         gradient: "linear-gradient(135deg, #d97706 0%, #92400e 100%)",
-        imageUrl: U("1568901346375-23c9450c58cd"),
+        imageUrl: P(3727243),
         extras: BURGER_EXTRAS,
       },
       {
@@ -131,7 +135,7 @@ const RAW: RawCategory[] = [
         price: 36.9,
         featured: true,
         gradient: "linear-gradient(135deg, #b45309 0%, #78350f 100%)",
-        imageUrl: U("1553979459-d2229ba7433b"),
+        imageUrl: P(15010309),
         extras: BURGER_EXTRAS,
       },
       {
@@ -141,7 +145,7 @@ const RAW: RawCategory[] = [
           "Blend de costela desfiada 180g, queijo provolone derretido, onion rings e barbecue defumado.",
         price: 39.9,
         gradient: "linear-gradient(135deg, #a16207 0%, #713f12 100%)",
-        imageUrl: U("1572802419224-296b0aeee0d9"),
+        imageUrl: P(19798789),
         extras: BURGER_EXTRAS,
       },
       {
@@ -151,7 +155,7 @@ const RAW: RawCategory[] = [
           "Filé de frango empanado crocante, coleslaw, maionese de ervas e picles no pão de batata.",
         price: 27.9,
         gradient: "linear-gradient(135deg, #ca8a04 0%, #854d0e 100%)",
-        imageUrl: U("1606755962773-d324e0a13086"),
+        imageUrl: P(34407059),
         extras: [BURGER_EXTRAS[0]!, BURGER_EXTRAS[2]!],
       },
     ],
@@ -169,7 +173,7 @@ const RAW: RawCategory[] = [
         price: 45.9,
         featured: true,
         gradient: "linear-gradient(135deg, #dc2626 0%, #991b1b 100%)",
-        imageUrl: U("1574071318508-1cdbab80d002"),
+        imageUrl: P(31596394),
         extras: PIZZA_EXTRAS,
       },
       {
@@ -179,7 +183,7 @@ const RAW: RawCategory[] = [
           "Calabresa artesanal fatiada, cebola roxa, azeitonas pretas e orégano.",
         price: 42.9,
         gradient: "linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%)",
-        imageUrl: U("1513104890138-7c749659a591"),
+        imageUrl: P(5903232),
         extras: PIZZA_EXTRAS,
       },
       {
@@ -188,7 +192,7 @@ const RAW: RawCategory[] = [
         description: "Mussarela, gorgonzola, parmesão e catupiry gratinado.",
         price: 49.9,
         gradient: "linear-gradient(135deg, #eab308 0%, #a16207 100%)",
-        imageUrl: U("1593560708920-61dd98c46a4e"),
+        imageUrl: P(33458021),
         extras: PIZZA_EXTRAS,
       },
       {
@@ -197,7 +201,7 @@ const RAW: RawCategory[] = [
         description: "Presunto, ovo, cebola, azeitonas, ervilha e mussarela.",
         price: 47.9,
         gradient: "linear-gradient(135deg, #ea580c 0%, #9a3412 100%)",
-        imageUrl: U("1565299624946-b28f40a0ae38"),
+        imageUrl: P(5640037),
         extras: PIZZA_EXTRAS,
       },
     ],
@@ -214,7 +218,7 @@ const RAW: RawCategory[] = [
           "Salsicha defumada, purê, milho, ervilha, batata palha e molhos.",
         price: 18.9,
         gradient: "linear-gradient(135deg, #f59e0b 0%, #b45309 100%)",
-        imageUrl: U("1612392062798-2dd8c1f6fad4"),
+        imageUrl: P(24870635),
         extras: DOG_EXTRAS,
       },
       {
@@ -227,7 +231,7 @@ const RAW: RawCategory[] = [
         badge: "Promo",
         featured: true,
         gradient: "linear-gradient(135deg, #d97706 0%, #92400e 100%)",
-        imageUrl: U("1619740455993-9d77a82c8559"),
+        imageUrl: P(36501077),
         extras: DOG_EXTRAS,
       },
       {
@@ -237,7 +241,7 @@ const RAW: RawCategory[] = [
           "Calabresa desfiada, vinagrete, mussarela gratinada e molho de pimenta.",
         price: 22.9,
         gradient: "linear-gradient(135deg, #c2410c 0%, #7c2d12 100%)",
-        imageUrl: U("1599599810769-bcde5a160d32"),
+        imageUrl: P(24870633),
         extras: DOG_EXTRAS,
       },
     ],
@@ -253,7 +257,7 @@ const RAW: RawCategory[] = [
         description: "Lata gelada.",
         price: 6.9,
         gradient: "linear-gradient(135deg, #991b1b 0%, #450a0a 100%)",
-        imageUrl: U("1554866585-cd94860890b7"),
+        imageUrl: P(9706990),
       },
       {
         id: "guarana",
@@ -261,7 +265,7 @@ const RAW: RawCategory[] = [
         description: "Lata gelada.",
         price: 5.9,
         gradient: "linear-gradient(135deg, #15803d 0%, #14532d 100%)",
-        imageUrl: U("1625772299848-391b6a87d7b3"),
+        imageUrl: P(6920721),
       },
       {
         id: "suco",
@@ -269,7 +273,7 @@ const RAW: RawCategory[] = [
         description: "Laranja, limão, maracujá ou abacaxi. Feito na hora.",
         price: 12.9,
         gradient: "linear-gradient(135deg, #ea580c 0%, #c2410c 100%)",
-        imageUrl: U("1600271886742-f049cd451bba"),
+        imageUrl: P(30900665),
       },
       {
         id: "agua",
@@ -277,7 +281,7 @@ const RAW: RawCategory[] = [
         description: "Com ou sem gás.",
         price: 4.9,
         gradient: "linear-gradient(135deg, #0284c7 0%, #075985 100%)",
-        imageUrl: U("1523362628745-0c100150b504"),
+        imageUrl: P(35020123),
       },
     ],
   },
@@ -293,7 +297,7 @@ const RAW: RawCategory[] = [
           "Brownie de chocolate belga com sorvete de creme e calda quente.",
         price: 19.9,
         gradient: "linear-gradient(135deg, #78350f 0%, #451a03 100%)",
-        imageUrl: U("1606313564200-e75d5e30476c"),
+        imageUrl: P(27359379),
         extras: [
           { id: "chantilly", name: "Chantilly extra", price: 3.0 },
           { id: "calda", name: "Calda de chocolate", price: 2.5 },
@@ -306,7 +310,7 @@ const RAW: RawCategory[] = [
           "Bolinho com interior cremoso, acompanha sorvete de baunilha.",
         price: 22.9,
         gradient: "linear-gradient(135deg, #44403c 0%, #1c1917 100%)",
-        imageUrl: U("1624353365286-3f8d62daad51"),
+        imageUrl: P(27819685),
         extras: [{ id: "chantilly", name: "Chantilly extra", price: 3.0 }],
       },
       {
@@ -315,7 +319,7 @@ const RAW: RawCategory[] = [
         description: "Chocolate, morango ou Ovomaltine com chantilly.",
         price: 16.9,
         gradient: "linear-gradient(135deg, #be185d 0%, #831843 100%)",
-        imageUrl: U("1572490122747-3968b75cc699"),
+        imageUrl: P(32469289),
         extras: [{ id: "chantilly", name: "Chantilly extra", price: 3.0 }],
       },
     ],
@@ -332,7 +336,7 @@ const RAW: RawCategory[] = [
           "Porção generosa de batata frita sequinha com sal e orégano.",
         price: 22.9,
         gradient: "linear-gradient(135deg, #eab308 0%, #a16207 100%)",
-        imageUrl: U("1630384060421-cb20d0e0649d"),
+        imageUrl: P(5836772),
         extras: SIDE_EXTRAS,
       },
       {
@@ -341,7 +345,7 @@ const RAW: RawCategory[] = [
         description: "Anéis de cebola empanados crocantes com molho ranch.",
         price: 19.9,
         gradient: "linear-gradient(135deg, #ca8a04 0%, #854d0e 100%)",
-        imageUrl: U("1639024471283-03518883512d"),
+        imageUrl: P(8880734),
         extras: SIDE_EXTRAS,
       },
       {
@@ -351,7 +355,7 @@ const RAW: RawCategory[] = [
           "Nuggets de frango artesanais crocantes com molho barbecue.",
         price: 24.9,
         gradient: "linear-gradient(135deg, #d97706 0%, #92400e 100%)",
-        imageUrl: U("1562967914-608f82629710"),
+        imageUrl: P(11710530),
         extras: SIDE_EXTRAS,
       },
     ],
