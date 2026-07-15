@@ -1,7 +1,7 @@
 import "server-only";
 import { createServerSupabase } from "@/lib/supabase/server";
 import type { Menu, MenuCategory, RestaurantInfo } from "./types";
-import { fixtureMenu } from "./fixtures";
+import { fixtureMenu, BANNERS } from "./fixtures";
 
 /**
  * Carrega o cardápio. Usa o Supabase quando configurado e populado; caso
@@ -35,6 +35,8 @@ export async function getMenu(): Promise<Menu> {
     return {
       restaurant: mapRestaurant(settings),
       categories: categories.map(mapCategory),
+      // Banners ainda não têm tabela própria; usa os da loja (mock) até existir.
+      banners: BANNERS,
     };
   } catch {
     // Falha de rede/credenciais não pode derrubar o cardápio.

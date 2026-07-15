@@ -9,6 +9,7 @@ import { useCartHydrated } from "@/store/cart";
 import { TopBar } from "./TopBar";
 import { StorefrontHeader } from "./StorefrontHeader";
 import { CategoryTabs } from "./CategoryTabs";
+import { PromoBanner } from "./PromoBanner";
 import { Destaques } from "./Destaques";
 import { ItemCard } from "./ItemCard";
 import { CartSidebar } from "./CartSidebar";
@@ -21,7 +22,7 @@ interface Selection {
 }
 
 export function MenuBrowser({ menu }: { menu: Menu }) {
-  const { restaurant, categories } = menu;
+  const { restaurant, categories, banners } = menu;
   const cartReady = useCartHydrated();
   const featured = useMemo(() => featuredItems(menu), [menu]);
 
@@ -119,6 +120,8 @@ export function MenuBrowser({ menu }: { menu: Menu }) {
               />
             ) : (
               <>
+                <PromoBanner banners={banners} />
+
                 <Destaques items={featured} onSelect={openItem} />
 
                 {categories.map((cat) => {

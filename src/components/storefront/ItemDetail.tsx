@@ -1,9 +1,13 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import { Check, Minus, Plus } from "lucide-react";
-import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import { Check, Minus, Plus, X } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetClose,
+} from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { FoodImage } from "./FoodImage";
 import { iconByName } from "@/lib/menu/icons";
@@ -87,13 +91,17 @@ export function ItemDetail({ item, category, onClose }: ItemDetailProps) {
       <SheetContent
         side="bottom"
         hideClose
-        className="flex h-[92dvh] flex-col overflow-hidden rounded-t-3xl border-0 p-0"
+        className={cn(
+          "flex h-[92dvh] flex-col overflow-hidden rounded-t-3xl border-0 p-0",
+          // Desktop: cartão centrado com largura fixa — evita a foto esticada.
+          "lg:bottom-6 lg:mx-auto lg:h-auto lg:max-h-[86vh] lg:max-w-[440px] lg:rounded-3xl",
+        )}
       >
         {item && (
           <>
             <SheetTitle className="sr-only">{item.name}</SheetTitle>
 
-            <div className="relative h-56 shrink-0">
+            <div className="relative h-56 shrink-0 lg:h-60">
               <FoodImage
                 name={item.name}
                 gradient={item.gradient}
@@ -101,11 +109,19 @@ export function ItemDetail({ item, category, onClose }: ItemDetailProps) {
                 icon={category ? iconByName(category.icon) : undefined}
                 className="h-full w-full"
                 iconClassName="h-16 w-16"
-                sizes="100vw"
+                sizes="(min-width: 1024px) 440px, 100vw"
               />
-              <div className="absolute left-1/2 top-3 h-1 w-10 -translate-x-1/2 rounded-full bg-white/40" />
+              <div className="absolute left-1/2 top-3 h-1 w-10 -translate-x-1/2 rounded-full bg-white/50 lg:hidden" />
+
+              <SheetClose
+                aria-label="Fechar"
+                className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full bg-white/95 text-foreground shadow-sm transition-transform hover:scale-105 active:scale-95"
+              >
+                <X className="h-[18px] w-[18px]" strokeWidth={2.5} />
+              </SheetClose>
+
               {item.badge && (
-                <span className="absolute bottom-3 left-5 rounded-md bg-primary px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-primary-foreground shadow-sm">
+                <span className="absolute bottom-3 left-5 rounded-full bg-primary px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-primary-foreground shadow-sm">
                   {item.badge}
                 </span>
               )}
@@ -113,14 +129,14 @@ export function ItemDetail({ item, category, onClose }: ItemDetailProps) {
 
             <div className="flex-1 overflow-y-auto overscroll-contain">
               <div className="px-5 pb-4 pt-5">
-                <h2 className="font-display text-2xl font-extrabold leading-tight">
+                <h2 className="font-display text-[26px] font-extrabold leading-tight">
                   {item.name}
                 </h2>
-                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                <p className="mt-1.5 text-[13.5px] leading-relaxed text-muted-foreground">
                   {item.description}
                 </p>
-                <div className="mt-2.5 flex items-baseline gap-2">
-                  <p className="text-lg font-extrabold tabular-nums text-primary">
+                <div className="mt-3 flex items-baseline gap-2">
+                  <p className="text-xl font-extrabold tabular-nums text-primary">
                     {formatCurrency(item.price)}
                   </p>
                   {item.oldPrice && (
@@ -188,37 +204,42 @@ export function ItemDetail({ item, category, onClose }: ItemDetailProps) {
                   maxLength={200}
                 />
               </div>
-
-              <div className="flex items-center justify-center gap-5 px-5 py-4">
-                <button
-                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  disabled={quantity <= 1}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-30"
-                  aria-label="Diminuir quantidade"
-                >
-                  <Minus className="h-4 w-4" />
-                </button>
-                <span className="min-w-[32px] text-center text-xl font-bold tabular-nums">
-                  {quantity}
-                </span>
-                <button
-                  onClick={() => setQuantity((q) => q + 1)}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
-                  aria-label="Aumentar quantidade"
-                >
-                  <Plus className="h-4 w-4" />
-                </button>
-              </div>
             </div>
 
-            <div className="safe-bottom shrink-0 border-t border-border p-4">
-              <Button
-                onClick={handleAdd}
-                size="lg"
-                className="h-12 w-full rounded-xl text-[15px] font-bold"
-              >
-                Adicionar {formatCurrency(totalPrice)}
-              </Button>
+            {/* Barra fixa: stepper de quantidade + adicionar. */}
+            <div className="safe-bottom shrink-0 border-t border-border bg-card p-4">
+              <div className="flex items-center gap-3">
+                <div className="flex shrink-0 items-center gap-1 rounded-full border border-border bg-background p-1">
+                  <button
+                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                    disabled={quantity <= 1}
+                    className="grid h-9 w-9 place-items-center rounded-full text-muted-foreground transition-colors hover:text-primary disabled:cursor-not-allowed disabled:opacity-30"
+                    aria-label="Diminuir quantidade"
+                  >
+                    <Minus className="h-4 w-4" />
+                  </button>
+                  <span className="min-w-[24px] text-center text-[15px] font-bold tabular-nums">
+                    {quantity}
+                  </span>
+                  <button
+                    onClick={() => setQuantity((q) => q + 1)}
+                    className="grid h-9 w-9 place-items-center rounded-full text-muted-foreground transition-colors hover:text-primary"
+                    aria-label="Aumentar quantidade"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </button>
+                </div>
+
+                <button
+                  onClick={handleAdd}
+                  className="shadow-cart flex h-12 flex-1 items-center justify-between rounded-full bg-primary px-5 text-[15px] font-bold text-primary-foreground transition-transform active:scale-[0.98]"
+                >
+                  <span>Adicionar</span>
+                  <span className="tabular-nums">
+                    {formatCurrency(totalPrice)}
+                  </span>
+                </button>
+              </div>
             </div>
           </>
         )}

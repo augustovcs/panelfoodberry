@@ -15,8 +15,8 @@ export function ItemCard({ item, iconName, onSelect }: ItemCardProps) {
     <button
       onClick={() => onSelect(item)}
       className={cn(
-        "group flex w-full gap-3.5 rounded-2xl p-3 text-left",
-        "transition-colors hover:bg-secondary/60",
+        "group flex w-full gap-4 rounded-3xl p-3 text-left",
+        "transition-colors hover:bg-card",
       )}
     >
       <div className="min-w-0 flex-1 py-1">
@@ -33,7 +33,7 @@ export function ItemCard({ item, iconName, onSelect }: ItemCardProps) {
         <p className="mt-1 line-clamp-2 text-[12.5px] leading-relaxed text-muted-foreground">
           {item.description}
         </p>
-        <div className="mt-2 flex items-baseline gap-2">
+        <div className="mt-2.5 flex items-baseline gap-2">
           <span className="text-[15px] font-extrabold tabular-nums text-foreground">
             {formatCurrency(item.price)}
           </span>
@@ -51,14 +51,14 @@ export function ItemCard({ item, iconName, onSelect }: ItemCardProps) {
           gradient={item.gradient}
           imageUrl={item.imageUrl}
           icon={iconByName(iconName)}
-          className="shadow-soft h-[104px] w-[104px] rounded-xl"
+          className="shadow-soft h-[108px] w-[108px] rounded-2xl"
           iconClassName="h-8 w-8"
-          sizes="104px"
+          sizes="108px"
         />
         <span
           className={cn(
-            "absolute -bottom-2 -right-2 grid h-8 w-8 place-items-center rounded-full",
-            "shadow-cart bg-primary text-primary-foreground ring-2 ring-card",
+            "absolute -bottom-2 -right-2 grid h-9 w-9 place-items-center rounded-full",
+            "shadow-cart bg-primary text-primary-foreground ring-[3px] ring-[#faf6f0]",
             "transition-transform group-hover:scale-110 group-active:scale-95",
           )}
         >

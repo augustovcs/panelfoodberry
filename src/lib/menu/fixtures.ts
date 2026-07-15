@@ -3,6 +3,7 @@ import type {
   MenuCategory,
   MenuItem,
   MenuOption,
+  PromoBanner,
   RestaurantInfo,
 } from "./types";
 
@@ -32,6 +33,37 @@ export const RESTAURANT: RestaurantInfo = {
   categoriesLabel: "Lanches · Pizza · Brasileira",
   whatsapp: "5511999999999",
 };
+
+/** Banners promocionais da loja (mock; editáveis no painel quando o banco existir). */
+export const BANNERS: PromoBanner[] = [
+  {
+    id: "combo-casal",
+    title: "Combo Casal",
+    subtitle: "2 smash + fritas + 2 bebidas",
+    cta: "Peça já",
+    badge: "-30%",
+    gradient: "linear-gradient(135deg, #ea580c 0%, #9a3412 100%)",
+    imageUrl: U("1550547660-d9450f859349", 900),
+  },
+  {
+    id: "frete-gratis",
+    title: "Frete grátis",
+    subtitle: "Em pedidos acima de R$ 50",
+    cta: "Aproveitar",
+    badge: "Hoje",
+    gradient: "linear-gradient(135deg, #b45309 0%, #78350f 100%)",
+    imageUrl: U("1571091718767-18b5b1457add", 900),
+  },
+  {
+    id: "noite-pizza",
+    title: "Terça da Pizza",
+    subtitle: "Toda pizza grande com 20% off",
+    cta: "Ver pizzas",
+    badge: "Terça",
+    gradient: "linear-gradient(135deg, #c2410c 0%, #7c2d12 100%)",
+    imageUrl: U("1513104890138-7c749659a591", 900),
+  },
+];
 
 interface RawItem {
   id: string;
@@ -364,4 +396,5 @@ const CATEGORIES: MenuCategory[] = RAW.map((cat) => ({
 export const fixtureMenu: Menu = {
   restaurant: RESTAURANT,
   categories: CATEGORIES,
+  banners: BANNERS,
 };

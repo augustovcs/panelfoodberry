@@ -7,7 +7,7 @@ export const revalidate = 60;
 export default async function LojaHome() {
   const menu = await getMenu();
   return (
-    <div className="flex min-h-dvh flex-col">
+    <div className="bg-paper flex min-h-dvh flex-col">
       <MenuBrowser menu={menu} />
     </div>
   );

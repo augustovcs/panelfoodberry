@@ -78,6 +78,27 @@
   .text-balance {
     text-wrap: balance;
   }
+
+  /* Fundo "papel" quente do storefront — dá o ar editorial/fresco da referência. */
+  .bg-paper {
+    background-color: #faf6f0;
+    background-image:
+      radial-gradient(
+        60rem 60rem at 100% -10%,
+        hsl(21 90% 48% / 0.05),
+        transparent 60%
+      ),
+      radial-gradient(
+        50rem 50rem at -10% 10%,
+        hsl(38 92% 50% / 0.05),
+        transparent 55%
+      );
+  }
+
+  /* Realce da palavra-chave no display (estilo "Good morning!"). */
+  .accent-word {
+    color: hsl(var(--primary));
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

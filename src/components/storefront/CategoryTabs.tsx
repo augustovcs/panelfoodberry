@@ -18,7 +18,7 @@ export function CategoryTabs({
   tabsRef,
 }: CategoryTabsProps) {
   return (
-    <nav className="sticky top-14 z-30 mt-5 border-b border-border/60 bg-background/90 backdrop-blur-md">
+    <nav className="sticky top-14 z-30 mt-6 border-b border-border/60 bg-[#faf6f0]/90 backdrop-blur-md">
       <div className="mx-auto max-w-5xl">
         <div
           ref={tabsRef}
@@ -38,8 +38,8 @@ export function CategoryTabs({
                 className={cn(
                   "flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-full px-4 text-[13px] font-bold transition-all duration-200",
                   isActive
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "bg-secondary text-muted-foreground hover:bg-accent hover:text-foreground",
+                    ? "shadow-cart bg-primary text-primary-foreground"
+                    : "border border-border/60 bg-card text-muted-foreground hover:text-foreground",
                 )}
               >
                 <Icon className="h-4 w-4" />

@@ -56,9 +56,22 @@ export interface RestaurantInfo {
   whatsapp: string;
 }
 
+/** Banner promocional da própria loja (full-branded), exibido no topo do cardápio. */
+export interface PromoBanner {
+  id: string;
+  title: string;
+  subtitle?: string;
+  cta?: string;
+  badge?: string;
+  /** CSS gradient de fundo / fallback da imagem */
+  gradient: string;
+  imageUrl?: string;
+}
+
 export interface Menu {
   restaurant: RestaurantInfo;
   categories: MenuCategory[];
+  banners: PromoBanner[];
 }
 
 export interface FeaturedItem {

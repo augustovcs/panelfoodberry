@@ -24,7 +24,7 @@ export function CartSidebar({ ready }: { ready: boolean }) {
 
   return (
     <aside className="hidden w-[340px] shrink-0 lg:block">
-      <div className="shadow-soft sticky top-[88px] overflow-hidden rounded-2xl border border-border/60 bg-card">
+      <div className="shadow-soft sticky top-[88px] overflow-hidden rounded-3xl border border-border/60 bg-card">
         <div className="flex items-center justify-between border-b border-border/60 px-5 py-4">
           <h2 className="font-display text-[16px] font-extrabold">
             Seu pedido
