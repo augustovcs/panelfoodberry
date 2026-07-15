@@ -16,6 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { FoodImage } from "@/components/storefront/FoodImage";
 import {
   useCart,
   useCartSubtotal,
@@ -217,9 +218,12 @@ export function CheckoutFlow({
       <section className="shadow-soft rounded-2xl border border-border/60 bg-card p-2">
         {lines.map((l) => (
           <div key={l.lineId} className="flex gap-3 rounded-xl p-2.5">
-            <div
-              className="h-14 w-14 shrink-0 rounded-lg"
-              style={{ background: l.gradient }}
+            <FoodImage
+              name={l.name}
+              gradient={l.gradient}
+              imageUrl={l.imageUrl}
+              className="h-20 w-20 shrink-0 rounded-xl"
+              sizes="80px"
             />
             <div className="min-w-0 flex-1">
               <div className="flex items-start justify-between gap-2">
