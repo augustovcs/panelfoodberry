@@ -265,7 +265,7 @@ const RAW: RawCategory[] = [
         description: "Lata gelada.",
         price: 5.9,
         gradient: "linear-gradient(135deg, #15803d 0%, #14532d 100%)",
-        imageUrl: P(6920721),
+        imageUrl: P(32183186),
       },
       {
         id: "suco",
